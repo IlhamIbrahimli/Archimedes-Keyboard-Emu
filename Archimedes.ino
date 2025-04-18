@@ -94,10 +94,7 @@ void setup() {
   mouse.initialise();
   keyboard.begin(KDAT, KCLK);
   Serial.begin(312500);
-  while(!serial.available());
-  if (serial.read() == HRST) {
-    reset(false);
-  }
+  reset(true);
 }
 
 
@@ -105,7 +102,7 @@ int reset(bool selfInit) {
   // Keyboard sends HRST and waits for ARM reply
   int code;
   Serial.write(HRST);
-  if (bool selfInit) {
+  if (selfInit) {
     while(!serial.available());
     code = Serial.read();
     if (code == HRST) {
@@ -152,11 +149,13 @@ int SendKeys() {
   int scanval;
   bool extended = false;
   bool breakCode = false;
+  while(!keyboard.available());
   scanval = keyboard.readScanCode();
   bool makePrnt = false;
   bool breakPrnt = false;
   if (scanval == 0xE0) {
     extended = true;
+    while(!keyboard.available());
     scanval = keyboard.readScanCode(); 
     if (scanval == 0x12) {
       makePrnt = true;
@@ -164,6 +163,7 @@ int SendKeys() {
   } 
   if (scanval == 0xF0) {
     breakCode = true;
+    while(!keyboard.available());
     scanval = keyboard.readScanCode();
     if(extended && scanval == 0x7C) {
       breakPrnt = true;
