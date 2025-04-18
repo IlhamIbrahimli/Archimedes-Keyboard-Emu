@@ -149,8 +149,12 @@ int SendKeys() {
   int scanval;
   bool extended = false;
   bool breakCode = false;
-  while(!keyboard.available());
-  scanval = keyboard.readScanCode();
+  if(keyboard.available()) {
+    scanval = keyboard.readScanCode();
+  }else {
+    return NULL;
+  }
+  
   bool makePrnt = false;
   bool breakPrnt = false;
   if (scanval == 0xE0) {
