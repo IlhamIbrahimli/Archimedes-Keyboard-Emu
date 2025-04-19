@@ -153,6 +153,23 @@ int SendKeys() {
   bool breakCode = false;
   if(keyboard.available()) {
     scanval = keyboard.readScanCode();
+    bool inArray = false;
+    for (int z = 0; z < heldKeys.size();z++) {
+      if (heldKeys.get(z) == scanval) {
+        inArray = true;
+        break;
+      }
+    }
+    while(keyboard.available() && inArray) {
+      scanval = keyboard.readScanCode();
+      bool inArray = false;
+      for (int z = 0; z < heldKeys.size();z++) {
+        if (heldKeys.get(z) == scanval) {
+          inArray = true;
+          break;
+        }
+      }
+    }
   }else {
     return NULL;
   }
