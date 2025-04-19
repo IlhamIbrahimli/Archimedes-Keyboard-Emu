@@ -1,11 +1,13 @@
 #include <LinkedList.h>
-
+#include <SoftwareSerial.h>
 #include <PS2Keyboard.h>
 #include <PS2MouseHandler.h>
-#define MDATA 5
-#define MCLK 6
-#define KDAT 7
-#define KCLK 8
+#define MDATA 4
+#define MCLK 5
+#define KDAT 6
+#define KCLK 7
+#define rxPin = 2;
+#define txPin = 3
 
 //Define archimedes codes
 #define HRST 0xFF;
@@ -85,7 +87,7 @@ const PROGMEM int ArchiExtended[14][3] = {{0xE014, 0x06,0x01},{0xE011,0x06, 0x00
 Pressing end will press copy. To press end actually press Shift+End
 Hashtag key gives hastag
 To get tilda (~) press Shift + ` (The one under escape)*/
-
+SoftwareSerial ArchiSerial(rxPin, txPin, true) // rx,tx,inverse_logic
 
 void setup() {
   // put your setup code here, to run once:
@@ -93,7 +95,7 @@ void setup() {
 
   mouse.initialise();
   keyboard.begin(KDAT, KCLK);
-  Serial.begin(312500);
+  ArchiSerial.begin(312500);
   reset(true);
 }
 
@@ -101,35 +103,35 @@ void setup() {
 int reset(bool selfInit) {
   // Keyboard sends HRST and waits for ARM reply
   int code;
-  Serial.write(HRST);
+  ArchiSerial.write(HRST);
   if (selfInit) {
-    while(!serial.available());
-    code = Serial.read();
+    while(!ArchiSerial.available());
+    code = ArchiSerial.read();
     if (code == HRST) {
       
-      Serial.write(HRST);
+      ArchiSerial.write(HRST);
     } else {
       return -1;
     }
   }
-  while(!serial.available());
-  code = Serial.read();
+  while(!ArchiSerial.available());
+  code = ArchiSerial.read();
   if (code == RAK1) {
 
-    Serial.write(RAK1);
+    ArchiSerial.write(RAK1);
   } else {
     return -1;
   }
-  while(!serial.available());
-  code = Serial.read();
+  while(!ArchiSerial.available());
+  code = ArchiSerial.read();
   if (code == RAK2) {
 
-    Serial.write(RAK2);
+    ArchiSerial.write(RAK2);
   } else {
     return -1;
   }
-  while(!serial.available());
-  code = Serial.read();
+  while(!ArchiSerial.available());
+  code = ArchiSerial.read();
   if (code == SMAK) {
     mouseState = 3;
   }else if (code == SACK) {
@@ -208,9 +210,9 @@ int SendKeys() {
           }
         }
       }
-      Serial.write((KUDA | rowToSend));
-      while(!serial.available());
-      ackCode = Serial.read();
+      ArchiSerial.write((KUDA | rowToSend));
+      while(!ArchiSerial.available());
+      ackCode = ArchiSerial.read();
       while (ackCode != BACK) {
         if (ackCode == HRST) {
           reset(false);
@@ -218,10 +220,10 @@ int SendKeys() {
         }else if (ackCode == RQID) {
           tempCode = RQID;
         }
-        while(!serial.available());
-        ackCode = Serial.read();
+        while(!ArchiSerial.available());
+        ackCode = ArchiSerial.read();
       }
-      Serial.write((KUDA | colToSend));
+      ArchiSerial.write((KUDA | colToSend));
       while (ackCode != NACK || ackCode != MACK || ackCode != SACK || ackCode != SMAK) {
         if (ackCode == HRST) {
           reset(false);
@@ -229,13 +231,13 @@ int SendKeys() {
         }else if (ackCode == RQID) {
           tempCode = RQID;
         }
-        while(!serial.available());
-        ackCode = Serial.read();
+        while(!ArchiSerial.available());
+        ackCode = ArchiSerial.read();
       }
     }else {
-      Serial.write((KUDA | keymap_Archi.rows[scanval]));
-      while(!serial.available());
-      ackCode = Serial.read();
+      ArchiSerial.write((KUDA | keymap_Archi.rows[scanval]));
+      while(!ArchiSerial.available());
+      ackCode = ArchiSerial.read();
       while (ackCode != BACK) {
         if (ackCode == HRST) {
           reset(false);
@@ -243,10 +245,10 @@ int SendKeys() {
         }else if (ackCode == RQID) {
           tempCode = RQID;
         }
-        while(!serial.available());
-        ackCode = Serial.read();
+        while(!ArchiSerial.available());
+        ackCode = ArchiSerial.read();
       }
-      Serial.write((KUDA | keymap_Archi.columns[scanval]));
+      ArchiSerial.write((KUDA | keymap_Archi.columns[scanval]));
       while (ackCode != NACK || ackCode != MACK || ackCode != SACK || ackCode != SMAK) {
         if (ackCode == HRST) {
           reset(false);
@@ -254,8 +256,8 @@ int SendKeys() {
         }else if (ackCode == RQID) {
           tempCode = RQID;
         }
-        while(!serial.available());
-        ackCode = Serial.read();
+        while(!ArchiSerial.available());
+        ackCode = ArchiSerial.read();
       }
     
     }
@@ -280,9 +282,9 @@ int SendKeys() {
             }
           }
         }
-        Serial.write((KDDA | rowToSend));
-        while(!serial.available());
-        ackCode = Serial.read();
+        ArchiSerial.write((KDDA | rowToSend));
+        while(!ArchiSerial.available());
+        ackCode = ArchiSerial.read();
         while (ackCode != BACK) {
           if (ackCode == HRST) {
             reset(false);
@@ -290,10 +292,10 @@ int SendKeys() {
           }else if (ackCode == RQID) {
             tempCode = RQID;
           }
-          while(!serial.available());
-          ackCode = Serial.read();
+          while(!ArchiSerial.available());
+          ackCode = ArchiSerial.read();
         }
-        Serial.write((KDDA | colToSend));
+        ArchiSerial.write((KDDA | colToSend));
         while (ackCode != NACK || ackCode != MACK || ackCode != SACK || ackCode != SMAK) {
           if (ackCode == HRST) {
             reset(false);
@@ -301,13 +303,13 @@ int SendKeys() {
           }else if (ackCode == RQID) {
             tempCode = RQID;
           }
-          while(!serial.available());
-          ackCode = Serial.read();
+          while(!ArchiSerial.available());
+          ackCode = ArchiSerial.read();
         }
       }else {
-        Serial.write((KDDA | keymap_Archi.rows[scanval]));
-        while(!serial.available());
-        ackCode = Serial.read();
+        ArchiSerial.write((KDDA | keymap_Archi.rows[scanval]));
+        while(!ArchiSerial.available());
+        ackCode = ArchiSerial.read();
         while (ackCode != BACK) {
           if (ackCode == HRST) {
             reset(false);
@@ -315,10 +317,10 @@ int SendKeys() {
           }else if (ackCode == RQID) {
             tempCode = RQID;
           }
-          while(!serial.available());
-          ackCode = Serial.read();
+          while(!ArchiSerial.available());
+          ackCode = ArchiSerial.read();
         }
-        Serial.write((KDDA | keymap_Archi.columns[scanval]));
+        ArchiSerial.write((KDDA | keymap_Archi.columns[scanval]));
         while (ackCode != NACK || ackCode != MACK || ackCode != SACK || ackCode != SMAK) {
           if (ackCode == HRST) {
             reset(false);
@@ -326,8 +328,8 @@ int SendKeys() {
           }else if (ackCode == RQID) {
             tempCode = RQID;
           }
-          while(!serial.available());
-          ackCode = Serial.read();
+          while(!ArchiSerial.available());
+          ackCode = ArchiSerial.read();
         }
 
       }
@@ -351,9 +353,9 @@ int SendMBI(int button,bool Down) {
   int codeToSend = (Down == true) ? KDDA : KUDA;
   int rowToSend = 0x07;
   int colToSend = button;
-  Serial.write((codeToSend | rowToSend));
-  while(!serial.available());
-  ackCode = Serial.read();
+  ArchiSerial.write((codeToSend | rowToSend));
+  while(!ArchiSerial.available());
+  ackCode = ArchiSerial.read();
   while (ackCode != BACK) {
     if (ackCode == HRST) {
       reset(false);
@@ -361,10 +363,10 @@ int SendMBI(int button,bool Down) {
     }else if (ackCode == RQID) {
       tempCode = RQID;
     }
-    while(!serial.available());
-    ackCode = Serial.read();
+    while(!ArchiSerial.available());
+    ackCode = ArchiSerial.read();
   }
-  Serial.write((codeToSend | colToSend));
+  ArchiSerial.write((codeToSend | colToSend));
   while (ackCode != NACK || ackCode != MACK || ackCode != SACK || ackCode != SMAK) {
     if (ackCode == HRST) {
       reset(false);
@@ -372,8 +374,8 @@ int SendMBI(int button,bool Down) {
     }else if (ackCode == RQID) {
       tempCode = RQID;
     }
-    while(!serial.available());
-    ackCode = Serial.read();
+    while(!ArchiSerial.available());
+    ackCode = ArchiSerial.read();
   }
       
 
@@ -394,9 +396,9 @@ int MousePos(x,y) {
   int tempCode = NULL;
   uint8_t clampedX = constrain(x,-64,63);
   uint8_t formatX = (clampedX & 0x3f) | ((clampedX >> 1) & 0x40);
-  Serial.write(formatX);
-  while(!serial.available());
-  ackCode = Serial.read();
+  ArchiSerial.write(formatX);
+  while(!ArchiSerial.available());
+  ackCode = ArchiSerial.read();
   while (ackCode != BACK) {
     if (ackCode == HRST) {
       reset(false);
@@ -404,12 +406,12 @@ int MousePos(x,y) {
     }else if (ackCode == RQID) {
       tempCode = RQID;
     }
-    while(!serial.available());
-    ackCode = Serial.read();
+    while(!ArchiSerial.available());
+    ackCode = ArchiSerial.read();
   }
   uint8_t clampedY = constrain(y,-64,63);
   uint8_t formatY = (clampedY & 0x3f) | ((clampedY >> 1) & 0x40);
-  Serial.write(formatY);
+  ArchiSerial.write(formatY);
   while (ackCode != NACK || ackCode != MACK || ackCode != SACK || ackCode != SMAK) {
     if (ackCode == HRST) {
       reset(false);
@@ -417,8 +419,8 @@ int MousePos(x,y) {
     }else if (ackCode == RQID) {
       tempCode = RQID;
     }
-    while(!serial.available());
-    ackCode = Serial.read();
+    while(!ArchiSerial.available());
+    ackCode = ArchiSerial.read();
   }
   if (ackCode == SMAK) {
     mouseState = 3;
@@ -448,7 +450,7 @@ void loop() {
       if (heldCode == RQMP) {
         heldCode = mousePos(x,y);
       } else if (heldCode == RQID){
-        Serial.write(KBID);
+        ArchiSerial.write(KBID);
         heldCode = NULL;
       }
     }
@@ -468,7 +470,7 @@ void loop() {
       if (heldCode == RQMP) {
         heldCode = mousePos(x,y);
       } else if (heldCode == RQID){
-        Serial.write(KBID);
+        ArchiSerial.write(KBID);
         heldCode = NULL;
       }
     }
@@ -484,7 +486,7 @@ void loop() {
     if (heldCode == RQMP) {
       heldCode = mousePos(x,y);
     } else if (heldCode == RQID){
-      Serial.write(KBID);
+      ArchiSerial.write(KBID);
       heldCode = NULL;
     }
     }
@@ -500,7 +502,7 @@ void loop() {
     if (heldCode == RQMP) {
       heldCode = mousePos(x,y);
     } else if (heldCode == RQID){
-      Serial.write(KBID);
+      ArchiSerial.write(KBID);
       heldCode = NULL;
     }
     }
