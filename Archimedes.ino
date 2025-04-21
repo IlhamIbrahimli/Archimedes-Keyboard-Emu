@@ -102,6 +102,7 @@ void setup() {
 
 int reset(bool selfInit) {
   // Keyboard sends HRST and waits for ARM reply
+  
   int code;
   ArchiSerial.write(HRST);
   if (selfInit) {
@@ -147,8 +148,10 @@ int reset(bool selfInit) {
 }
 
 int SendKeys() {
+  ackCode = 0x00;
   int tempCode = NULL;
   int scanval;
+  int scratchScan;
   bool extended = false;
   bool breakCode = false;
   if(keyboard.available()) {
@@ -182,6 +185,9 @@ int SendKeys() {
     scanval = keyboard.readScanCode(); 
     if (scanval == 0x12) {
       makePrnt = true;
+      // Clear rest of buffer
+      scratchScan = keyboard.readScanCode(); // Read E0
+      scratchScan = keyboard.readScanCode(); // Read 7C
     }
   } 
   if (scanval == 0xF0) {
@@ -190,6 +196,10 @@ int SendKeys() {
     scanval = keyboard.readScanCode();
     if(extended && scanval == 0x7C) {
       breakPrnt = true;
+      // Clear rest of buffer
+      scratchScan = keyboard.readScanCode(); // Read E0
+      scratchScan = keyboard.readScanCode(); // Read F0
+      scratchScan = keyboard.readScanCode(); // Read 12
     }
   } 
   int fullCode;
@@ -382,7 +392,7 @@ int SendKeys() {
 }
 int SendMBI(int button,bool Down) {
   int tempCode == NULL;
-
+  ackCode = NULL;
   int codeToSend = (Down == true) ? KDDA : KUDA;
   int rowToSend = 0x07;
   int colToSend = button;
@@ -430,6 +440,7 @@ int SendMBI(int button,bool Down) {
 
 
 int MousePos(x,y) {
+  ackCode = NULL;
   int tempCode = NULL;
   uint8_t clampedX = constrain(x,-64,63);
   uint8_t formatX = (clampedX & 0x3f) | ((clampedX >> 1) & 0x40);
