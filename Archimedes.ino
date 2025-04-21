@@ -154,17 +154,17 @@ int SendKeys() {
   if(keyboard.available()) {
     scanval = keyboard.readScanCode();
     bool inArray = false;
-    for (int z = 0; z < heldKeys.size();z++) {
-      if (heldKeys.get(z) == scanval) {
+    for (int q = 0; q < heldKeys.size();q++) {
+      if (heldKeys.get(q) == scanval) {
         inArray = true;
         break;
       }
     }
     while(keyboard.available() && inArray) {
       scanval = keyboard.readScanCode();
-      bool inArray = false;
-      for (int z = 0; z < heldKeys.size();z++) {
-        if (heldKeys.get(z) == scanval) {
+      inArray = false;
+      for (int w = 0; w < heldKeys.size();w++) {
+        if (heldKeys.get(w) == scanval) {
           inArray = true;
           break;
         }
@@ -208,9 +208,9 @@ int SendKeys() {
   int rowToSend = NULL;
   int colToSend = NULL;
   if (breakCode) {
-    for (int z = 0; z < heldKeys.size();z++) {
-        if (heldKeys.get(z) == fullCode) {
-        heldKeys.remove(z);
+    for (int e = 0; e < heldKeys.size();e++) {
+        if (heldKeys.get(e) == fullCode) {
+        heldKeys.remove(e);
         break;
       }
 
@@ -220,10 +220,10 @@ int SendKeys() {
         rowToSend = 0x00;
         colToSend = 0x0D;
       }else {
-        for (int j = 0; j < 13; j++) {
-          if (fullCode == ArchiExtended[j][0]) {
-            rowToSend = ArchiExtended[j][1];
-            colToSend = ArchiExtended[j][2];
+        for (int r = 0; r < 13; r++) {
+          if (fullCode == ArchiExtended[r][0]) {
+            rowToSend = ArchiExtended[r][1];
+            colToSend = ArchiExtended[r][2];
           }
         }
       }
@@ -236,6 +236,8 @@ int SendKeys() {
           return NULL;
         }else if (ackCode == RQID) {
           tempCode = RQID;
+        }else if (ackCode == RQMP) {
+          tempCode = RQMP;
         }
         while(!ArchiSerial.available());
         ackCode = ArchiSerial.read();
@@ -247,6 +249,8 @@ int SendKeys() {
           return NULL;
         }else if (ackCode == RQID) {
           tempCode = RQID;
+        }else if (ackCode == RQMP) {
+          tempCode = RQMP;
         }
         while(!ArchiSerial.available());
         ackCode = ArchiSerial.read();
@@ -261,6 +265,8 @@ int SendKeys() {
           return NULL;
         }else if (ackCode == RQID) {
           tempCode = RQID;
+        }else if (ackCode == RQMP) {
+          tempCode = RQMP;
         }
         while(!ArchiSerial.available());
         ackCode = ArchiSerial.read();
@@ -272,6 +278,8 @@ int SendKeys() {
           return NULL;
         }else if (ackCode == RQID) {
           tempCode = RQID;
+        }else if (ackCode == RQMP) {
+          tempCode = RQMP;
         }
         while(!ArchiSerial.available());
         ackCode = ArchiSerial.read();
@@ -280,8 +288,8 @@ int SendKeys() {
     }
 
   }else { 
-    for (int z = 0; z < heldKeys.size();z++) {
-      if (heldKeys.get(z) == fullCode) {
+    for (int t = 0; t < heldKeys.size();t++) {
+      if (heldKeys.get(t) == fullCode) {
         needToSend = false;
         break;
       }
@@ -292,10 +300,10 @@ int SendKeys() {
         rowToSend = 0x00;
         colToSend = 0x0D;
         }else {
-          for (int j = 0; j < 13; j++) {
-            if (fullCode == ArchiExtended[j][0]) {
-              rowToSend = ArchiExtended[j][1];
-              colToSend = ArchiExtended[j][2];
+          for (int y = 0; y < 13; y++) {
+            if (fullCode == ArchiExtended[y][0]) {
+              rowToSend = ArchiExtended[y][1];
+              colToSend = ArchiExtended[y][2];
             }
           }
         }
@@ -308,6 +316,8 @@ int SendKeys() {
             return NULL;
           }else if (ackCode == RQID) {
             tempCode = RQID;
+          }else if (ackCode == RQMP) {
+            tempCode = RQMP;
           }
           while(!ArchiSerial.available());
           ackCode = ArchiSerial.read();
@@ -319,6 +329,8 @@ int SendKeys() {
             return NULL;
           }else if (ackCode == RQID) {
             tempCode = RQID;
+          }else if (ackCode == RQMP) {
+            tempCode = RQMP;
           }
           while(!ArchiSerial.available());
           ackCode = ArchiSerial.read();
@@ -333,6 +345,8 @@ int SendKeys() {
             return NULL;
           }else if (ackCode == RQID) {
             tempCode = RQID;
+          }else if (ackCode == RQMP) {
+            tempCode = RQMP;
           }
           while(!ArchiSerial.available());
           ackCode = ArchiSerial.read();
@@ -344,6 +358,8 @@ int SendKeys() {
             return NULL;
           }else if (ackCode == RQID) {
             tempCode = RQID;
+          }else if (ackCode == RQMP) {
+            tempCode = RQMP;
           }
           while(!ArchiSerial.available());
           ackCode = ArchiSerial.read();
@@ -379,6 +395,8 @@ int SendMBI(int button,bool Down) {
       return NULL;
     }else if (ackCode == RQID) {
       tempCode = RQID;
+    }else if (ackCode == RQMP) {
+      tempCode = RQMP;
     }
     while(!ArchiSerial.available());
     ackCode = ArchiSerial.read();
@@ -390,6 +408,8 @@ int SendMBI(int button,bool Down) {
       return NULL;
     }else if (ackCode == RQID) {
       tempCode = RQID;
+    }else if (ackCode == RQMP) {
+      tempCode = RQMP;
     }
     while(!ArchiSerial.available());
     ackCode = ArchiSerial.read();
@@ -422,6 +442,8 @@ int MousePos(x,y) {
       return NULL;
     }else if (ackCode == RQID) {
       tempCode = RQID;
+    }else if (ackCode == RQMP) {
+      tempCode = RQMP;
     }
     while(!ArchiSerial.available());
     ackCode = ArchiSerial.read();
@@ -435,6 +457,8 @@ int MousePos(x,y) {
       return NULL;
     }else if (ackCode == RQID) {
       tempCode = RQID;
+    }else if (ackCode == RQMP) {
+      tempCode = RQMP;
     }
     while(!ArchiSerial.available());
     ackCode = ArchiSerial.read();
@@ -465,6 +489,8 @@ void loop() {
     //for loop
     while (heldCode != NULL) {
       if (heldCode == RQMP) {
+        x = mouse.x_movement();
+        y = mouse.y_movement();
         heldCode = mousePos(x,y);
       } else if (heldCode == RQID){
         ArchiSerial.write(KBID);
@@ -474,7 +500,7 @@ void loop() {
   }
   int ButtonCount = 0;
   bool tempPress = false;
-  while(mouseState == 1 || mouseState == 3) {
+  while((mouseState == 1 || mouseState == 3) && ButtonCount < 3) {
     tempPress = mouse.button(ButtonCount);
     if (tempPress == true && PrevMB[ButtonCount] == false) {
       heldCode = SendMBI(ButtonCount, true);
@@ -485,6 +511,8 @@ void loop() {
     ButtonCount++;
     while (heldCode != NULL) {
       if (heldCode == RQMP) {
+        x = mouse.x_movement();
+        y = mouse.y_movement();
         heldCode = mousePos(x,y);
       } else if (heldCode == RQID){
         ArchiSerial.write(KBID);
@@ -492,13 +520,10 @@ void loop() {
       }
     }
   }
-  if (ackCode == RQMP) {
-    x = mouse.x_movement();
-    y = mouse.y_movement();
-    heldCode = mousePos(x,y)
-  }
   while (heldCode != NULL) {
     if (heldCode == RQMP) {
+      x = mouse.x_movement();
+      y = mouse.y_movement();
       heldCode = mousePos(x,y);
     } else if (heldCode == RQID){
       ArchiSerial.write(KBID);
