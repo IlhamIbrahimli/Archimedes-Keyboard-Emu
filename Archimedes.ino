@@ -492,8 +492,6 @@ void loop() {
       }
     }
   }
-  }
-  }
   if (ackCode == RQMP) {
     x = mouse.x_movement();
     y = mouse.y_movement();
@@ -506,8 +504,8 @@ void loop() {
       ArchiSerial.write(KBID);
       heldCode = NULL;
     }
-    }
   }
+
   if (mouseState == 2 || mouseState == 3) {
     x = mouse.x_movement();
     y = mouse.y_movement();
@@ -522,7 +520,6 @@ void loop() {
       ArchiSerial.write(KBID);
       heldCode = NULL;
     }
-    }
   }
-  
 }
+
