@@ -1,26 +1,32 @@
 
-
 #include <SoftwareSerial.h>
-
 #include <PS2Keyboard.h>
-
 #include <LinkedList.h>
 #include <PS2MouseHandler.h>
 
+//Define the pin connectors (mapped for Arduino UNO R3)
 #define MDATA 4
 #define MCLK 5
 #define KDAT 6
-#define KCLK 3
+#define KCLK 3 // MUST BE IRQ PIN (google if unsure)
 #define STX 8
 #define SRX 9
+
+//set the jumper pins (Optiboot must be used if jumpers are used)
+#define JUMPER_DELETE A0
+#define JUMPER_R A1
+#define JUMPER_0 A2
+#define JUMPER_SHIFT A3
+#define JUMPER_STAR A4
+#define JUMPER_BREAK A5
+
+
 
 //Define archimedes codes
 #define HRST 0xFF
 #define RAK1 0xFE
 #define RAK2 0xFD
 #define NBYTE 0x00
-//RQPD Unused??
-//PDAT w/ RQPD
 #define RQID 0x20
 #define KBID 0xAF // Might work idk its meant to be 10xx xxxx
 #define KDDA 0xC0 //1100 = key down, 1 byte = KDDA+row, 2 byte = KDDA+column
@@ -32,7 +38,7 @@
 #define SACK 0x31
 #define MACK 0x32
 #define SMAK 0x33
-#define PRST 0x21 //does Nothing
+
 
 PS2MouseHandler mouse(MCLK, MDATA, PS2_MOUSE_REMOTE);
 PS2Keyboard keyboard;
@@ -78,7 +84,7 @@ int tempKBID = 0x81;
 // //2 - MACK - Only non zero X OR Y, No Keyboard
 // //3 - SMAK - Both MACK AND SACK
 const PROGMEM int ArchiExtended[14][3] = {{0xE014, 0x06,0x01},{0xE011,0x06, 0x00}, {0xE070, 0x01, 0x0F}, {0xE06C, 0x02, 0x00}, {0xE07D,0x02, 0x01}, {0xE071, 0x03, 0x04}, {0xE069,0x03,0x05}, 
-{0xE07A, 0x03, 0x06}, {0xE075, 0x05,0x09}, {0xE06B, 0x06, 0x02}, {0xE072, 0x06, 0x03}, {0xE074, 0x06, 0x04}, {0xE04A, 0x02, 0x03}, {0xE05A, 0x06, 0x07}};
+{0xE07A, 0x03, 0x06}, {0xE075, 0x05,0x09}, {0xE06B, 0x06, 0x02}, {0xE072, 0x06, 0x03}, {0xE074, 0x06, 0x04}, {0xE04A, 0x02, 0x03}, {0xE05A, 0x06, 0x07}}; // FIX THIS
 
 /*Quick note on Key changes
 Pressing end will press copy. To press end actually press Shift+End
@@ -86,14 +92,19 @@ Hashtag key gives hastag
 To get tilda (~) press Shift + ` (The one under escape)*/
 SoftwareSerial archiSerial =  SoftwareSerial(SRX, STX, true);
 void setup() {
-  // put your setup code here, to run once:
   pinMode(SRX, INPUT);
   pinMode(STX, OUTPUT);
 
-  archiSerial.begin(31250);
+  //Set jumpers high
+  pinMode(JUMPER_DELETE, INPUT_PULLUP);
+  pinMode(JUMPER_R, INPUT_PULLUP);
+  pinMode(JUMPER_0, INPUT_PULLUP);
+  pinMode(JUMPER_SHIFT, INPUT_PULLUP);
+  pinMode(JUMPER_STAR, INPUT_PULLUP);
+  pinMode(JUMPER_BREAK, INPUT_PULLUP);
 
-  // int abc = mouse.initialise();
-  //keyboard.begin(KDAT, KCLK);
+
+  archiSerial.begin(31250);
   int a = reset(true,true);
   while (a == -1) {
     a = reset(true,true);
@@ -102,7 +113,6 @@ void setup() {
 
   mouse.initialise();
   keyboard.begin(KDAT, KCLK);
-  pinMode(13, OUTPUT);
 }
 
 int reset(bool selfInit, bool firstTime) {
@@ -133,7 +143,7 @@ int reset(bool selfInit, bool firstTime) {
   code = readCodeBlocking(false);
   
 
-  if (code == NACK) { // Send deletes to clear CMOS
+  if (code == NACK) { 
     mouseState = 0;
     code = readCodeBlocking(false);
     if(code == RQID) {
@@ -158,12 +168,63 @@ int reset(bool selfInit, bool firstTime) {
   if (code == SACK) {
     mouseState = 1;
     if (firstTime) {
-      writeCodeWait((KDDA | 0x03));
-      code = readCodeBlocking(false);
-      if (code == BACK) {
+      if (digitalRead(JUMPER_DELETE) == LOW) {
+        writeCodeWait((KDDA | 0x03));
+        code = readCodeBlocking(false);
+        if (code == BACK) {
+          writeCodeWait((KDDA | 0x04));
+          code = readCodeBlocking(false);
+
+        }
+      }else if (digitalRead(JUMPER_R) == LOW) {
+        writeCodeWait((KDDA | 0x02));
+        code = readCodeBlocking(false);
+        if (code == BACK) {
+          writeCodeWait((KDDA | 0x0A));
+          code = readCodeBlocking(false);
+
+        }
+      }else if (digitalRead(JUMPER_0) == LOW) {
+        writeCodeWait((KDDA | 0x01));
+        code = readCodeBlocking(false);
+        if (code == BACK) {
+          writeCodeWait((KDDA | 0x0A));
+          code = readCodeBlocking(false);
+
+        }
+      }
+      else if (digitalRead(JUMPER_SHIFT) == LOW) {
         writeCodeWait((KDDA | 0x04));
         code = readCodeBlocking(false);
+        if (code == BACK) {
+          writeCodeWait((KDDA | 0x0C));
+          code = readCodeBlocking(false);
 
+        }
+      }
+      else if (digitalRead(JUMPER_STAR) == LOW) {
+        writeCodeWait((KDDA | 0x02));
+        code = readCodeBlocking(false);
+        if (code == BACK) {
+          writeCodeWait((KDDA | 0x04));
+          code = readCodeBlocking(false);
+
+        }
+      }else if (digitalRead(JUMPER_BREAK) == LOW) {
+        writeCodeWait((KDDA | 0x04));
+        code = readCodeBlocking(false);
+        if (code == BACK) {
+          writeCodeWait((KDDA | 0x0C));
+          code = readCodeBlocking(false);
+
+        }writeCodeWait((KDDA | 0x00));
+        code = readCodeBlocking(false);
+        if (code == BACK) {
+          writeCodeWait((KDDA | 0x0F));
+          code = readCodeBlocking(false);
+
+        }
+        
       }
     }
   }
