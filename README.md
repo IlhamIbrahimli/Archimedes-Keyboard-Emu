@@ -1,7 +1,5 @@
 # Archimedes Keyboard & Mouse Emulator
 
-An old Archimedes was gathering dust in a school cupboard. This project got it working again.
-
 A hardware adapter that translates PS/2 keyboard and mouse input into the Acorn Archimedes' proprietary serial protocol, running on an Arduino Uno R3 (or any sufficiently small Arduino-compatible board).
 
 ## Features
